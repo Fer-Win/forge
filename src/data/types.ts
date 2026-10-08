@@ -138,6 +138,8 @@ export interface Settings {
   equipment: Load[];
   onboarded: boolean;
   startDate: string;
+  /** Track runs with GPS (default on). */
+  gps?: boolean;
 }
 
 export interface DayPrefs {
@@ -154,4 +156,14 @@ export interface ActiveSession {
   workoutId: string;
   updatedAt: number;
   state: unknown;
+}
+
+/** The run in progress (and its GPS track so far), so a reload or crash resumes it. */
+export interface ActiveRun {
+  id: 'active';
+  date: string;
+  type: RunType;
+  updatedAt: number;
+  state: unknown;
+  track: unknown;
 }

@@ -23,7 +23,7 @@ for (const width of [360, 412, 430]) {
     for (const t of TABS) {
       await page.getByRole('link', { name: t.name, exact: true }).click();
       await expect(page).toHaveURL(new RegExp(t.path));
-      await expect(page.getByRole('heading', { name: t.name })).toBeVisible();
+      await expect(page.getByRole('heading', { name: t.name, exact: true, level: 1 })).toBeVisible();
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       expect(overflow, `${t.name} @${width}`).toBeLessThanOrEqual(0);
       if (width === 412) await page.screenshot({ path: `shots/tab-${t.name.toLowerCase()}.png` });

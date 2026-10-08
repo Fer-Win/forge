@@ -1,6 +1,6 @@
 /* Forge service worker: offline shell. Bump VERSION to invalidate caches. */
 const VERSION = 'forge-v1';
-const SHELL = ['/', '/today/', '/plan/', '/run/', '/progress/', '/library/', '/onboarding/', '/workout/', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png'];
+const SHELL = ['/', '/today/', '/plan/', '/run/', '/progress/', '/library/', '/onboarding/', '/workout/', '/run/active/', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

@@ -1,5 +1,5 @@
 import { getRepos } from '@/data';
-import type { CheckStatus, DayAssignment, DayPrefs } from '@/data/types';
+import type { CheckStatus, DayAssignment, DayPrefs, Settings } from '@/data/types';
 
 /**
  * Tapping the status that is already set clears it, which is the undo for every check-off.
@@ -15,6 +15,12 @@ export async function patchPrefs(date: string, patch: Partial<Omit<DayPrefs, 'da
   const repos = getRepos();
   const cur: DayPrefs = (await repos.prefs.get(date)) ?? { date, intensity: 'normal', short: false };
   await repos.prefs.put({ ...cur, ...patch });
+}
+
+export async function patchSettings(patch: Partial<Omit<Settings, 'id'>>) {
+  const repos = getRepos();
+  const cur = await repos.settings.get();
+  if (cur) await repos.settings.put({ ...cur, ...patch });
 }
 
 export async function setDayOverride(date: string, assignment: DayAssignment | null) {

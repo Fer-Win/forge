@@ -1,6 +1,6 @@
 import type {
   Exercise, Workout, PlanDay, PlanOverride, ExerciseCheck, Session, RunLog, RunProgram,
-  BodyweightEntry, Settings, CheckStatus, DayPrefs, ActiveSession,
+  BodyweightEntry, Settings, CheckStatus, DayPrefs, ActiveSession, ActiveRun,
 } from '../types';
 
 /** UI and hooks depend only on these interfaces so a Firebase impl can replace Dexie later. */
@@ -66,6 +66,12 @@ export interface ActiveRepo {
   clear(): Promise<void>;
 }
 
+export interface ActiveRunRepo {
+  get(): Promise<ActiveRun | undefined>;
+  put(a: ActiveRun): Promise<void>;
+  clear(): Promise<void>;
+}
+
 export interface Repos {
   exercises: ExerciseRepo;
   workouts: WorkoutRepo;
@@ -78,6 +84,7 @@ export interface Repos {
   prefs: PrefsRepo;
   /** Transient in-progress workout; not part of export / import. */
   active: ActiveRepo;
+  activeRun: ActiveRunRepo;
   /** Full export / import for backup (SPEC: JSON export/import). */
   exportAll(): Promise<Record<string, unknown[]>>;
   importAll(data: Record<string, unknown[]>): Promise<void>;
