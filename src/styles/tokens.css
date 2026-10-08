@@ -1,0 +1,16 @@
+:root {
+  --bg: #0b0b0f;
+  --card: #16161d;
+  --card-2: #1d1d26;
+  --hair: rgba(255, 255, 255, 0.07);
+  --fg: #f5f5f7;
+  --muted: #8b8b98;
+  --accent: #fc4c02;
+  --done: #34c759;
+  --partial: #ffb020;
+  --rest: #5a5a66;
+  --radius-card: 18px;
+  --tabbar-h: 64px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
