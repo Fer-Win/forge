@@ -3,7 +3,7 @@ import type { Repos } from './interfaces';
 
 const TABLES = [
   'exercises', 'workouts', 'planDays', 'planOverrides', 'exerciseChecks',
-  'sessions', 'runs', 'runProgram', 'bodyweight', 'settings',
+  'sessions', 'runs', 'runProgram', 'bodyweight', 'settings', 'dayPrefs',
 ] as const;
 
 export function createDexieRepos(db: ForgeDB): Repos {
@@ -23,12 +23,14 @@ export function createDexieRepos(db: ForgeDB): Repos {
     plan: {
       week: () => db.planDays.orderBy('weekday').toArray(),
       setDay: async (d) => { await db.planDays.put(d); },
+      setWeek: async (days) => { await db.planDays.bulkPut(days); },
       overrides: (from, to) => db.planOverrides.where('date').between(from, to, true, true).toArray(),
       setOverride: async (o) => { await db.planOverrides.put(o); },
       clearOverride: (date) => db.planOverrides.delete(date),
     },
     checks: {
       forDate: (date) => db.exerciseChecks.where('date').equals(date).toArray(),
+      between: (from, to) => db.exerciseChecks.where('date').between(from, to, true, true).toArray(),
       set: async (date, exerciseId, status) => {
         const key = `${date}|${exerciseId}`;
         if (status === 'none') await db.exerciseChecks.delete(key); // undo = remove the check
@@ -58,6 +60,11 @@ export function createDexieRepos(db: ForgeDB): Repos {
     settings: {
       get: () => db.settings.get('settings'),
       put: async (s) => { await db.settings.put(s); },
+    },
+    prefs: {
+      get: (date) => db.dayPrefs.get(date),
+      put: async (p) => { await db.dayPrefs.put(p); },
+      between: (from, to) => db.dayPrefs.where('date').between(from, to, true, true).toArray(),
     },
     exportAll: async () => {
       const out: Record<string, unknown[]> = {};

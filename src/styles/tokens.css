@@ -10,7 +10,7 @@
   --partial: #ffb020;
   --rest: #5a5a66;
   --radius-card: 18px;
-  --tabbar-h: 64px;
+  --tabbar-h: 57px;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }

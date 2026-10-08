@@ -1,6 +1,6 @@
 import type {
   Exercise, Workout, PlanDay, PlanOverride, ExerciseCheck, Session, RunLog, RunProgram,
-  BodyweightEntry, Settings, CheckStatus,
+  BodyweightEntry, Settings, CheckStatus, DayPrefs,
 } from '../types';
 
 /** UI and hooks depend only on these interfaces so a Firebase impl can replace Dexie later. */
@@ -19,12 +19,15 @@ export interface WorkoutRepo {
 export interface PlanRepo {
   week(): Promise<PlanDay[]>;
   setDay(d: PlanDay): Promise<void>;
+  /** Replaces the whole base week in one atomic write. */
+  setWeek(days: PlanDay[]): Promise<void>;
   overrides(fromDate: string, toDate: string): Promise<PlanOverride[]>;
   setOverride(o: PlanOverride): Promise<void>;
   clearOverride(date: string): Promise<void>;
 }
 export interface CheckRepo {
   forDate(date: string): Promise<ExerciseCheck[]>;
+  between(fromDate: string, toDate: string): Promise<ExerciseCheck[]>;
   set(date: string, exerciseId: string, status: CheckStatus): Promise<void>;
 }
 export interface SessionRepo {
@@ -51,6 +54,12 @@ export interface SettingsRepo {
   put(s: Settings): Promise<void>;
 }
 
+export interface PrefsRepo {
+  get(date: string): Promise<DayPrefs | undefined>;
+  put(p: DayPrefs): Promise<void>;
+  between(fromDate: string, toDate: string): Promise<DayPrefs[]>;
+}
+
 export interface Repos {
   exercises: ExerciseRepo;
   workouts: WorkoutRepo;
@@ -60,6 +69,7 @@ export interface Repos {
   runs: RunRepo;
   bodyweight: BodyweightRepo;
   settings: SettingsRepo;
+  prefs: PrefsRepo;
   /** Full export / import for backup (SPEC: JSON export/import). */
   exportAll(): Promise<Record<string, unknown[]>>;
   importAll(data: Record<string, unknown[]>): Promise<void>;

@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'fs';
+import { onboard } from './helpers';
 
 const TABS = [
   { name: 'Today', path: '/today/' },
@@ -11,6 +12,10 @@ const TABS = [
 
 mkdirSync('shots', { recursive: true });
 
+test.beforeEach(async ({ page }) => {
+  await onboard(page);
+});
+
 for (const width of [360, 412, 430]) {
   test(`tabs render at ${width}px with no horizontal scroll`, async ({ page }) => {
     await page.setViewportSize({ width, height: 860 });
@@ -21,7 +26,7 @@ for (const width of [360, 412, 430]) {
       await expect(page.getByRole('heading', { name: t.name })).toBeVisible();
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       expect(overflow, `${t.name} @${width}`).toBeLessThanOrEqual(0);
-      if (width === 412) await page.screenshot({ path: `shots/${t.name.toLowerCase()}.png` });
+      if (width === 412) await page.screenshot({ path: `shots/tab-${t.name.toLowerCase()}.png` });
     }
   });
 }

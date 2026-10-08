@@ -137,3 +137,10 @@ export interface Settings {
   onboarded: boolean;
   startDate: string;
 }
+
+export interface DayPrefs {
+  date: string;
+  intensity: 'easy' | 'normal' | 'hard';
+  short: boolean;
+  energy?: 1 | 2 | 3 | 4 | 5;
+}

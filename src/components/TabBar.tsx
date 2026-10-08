@@ -15,7 +15,7 @@ export function TabBar() {
   return (
     <nav
       aria-label="Main"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-hair bg-bg/95 backdrop-blur"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-hair bg-bg"
       style={{ paddingBottom: 'var(--safe-bottom)' }}
     >
       <ul className="mx-auto flex max-w-md">
