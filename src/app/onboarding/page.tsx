@@ -8,6 +8,7 @@ import { toDateStr } from '@/lib/dates';
 import { WEEKDAYS_LONG } from '@/lib/labels';
 import { PillButton } from '@/components/ui/PillButton';
 import { Segmented } from '@/components/ui/Segmented';
+import { Toggle } from '@/components/ui/Toggle';
 
 const STEPS = ['Equipment', 'Schedule', 'Running'] as const;
 
@@ -154,25 +155,5 @@ export default function OnboardingPage() {
         </div>
       </div>
     </div>
-  );
-}
-
-function Toggle({
-  label, checked, onChange, disabled,
-}: { label: string; checked: boolean; onChange?: (v: boolean) => void; disabled?: boolean }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      disabled={disabled}
-      onClick={() => onChange?.(!checked)}
-      className="press flex min-h-[56px] w-full items-center justify-between rounded-card border border-hair bg-card px-4 text-left font-semibold disabled:opacity-70"
-    >
-      {label}
-      <span className={`flex h-7 w-12 items-center rounded-full px-1 transition-colors ${checked ? 'bg-accent' : 'bg-white/15'}`} aria-hidden>
-        <span className={`h-5 w-5 rounded-full bg-white transition-transform ${checked ? 'translate-x-5' : ''}`} />
-      </span>
-    </button>
   );
 }

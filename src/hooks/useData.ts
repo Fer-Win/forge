@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { getRepos } from '@/data';
-import type { Exercise, PlanDay, RunProgram, Settings, Workout, CheckStatus } from '@/data/types';
+import type { ActiveSession, Exercise, PlanDay, RunProgram, Settings, Workout, CheckStatus } from '@/data/types';
 import type { DayData } from '@/engine/dayStatus';
 import { addDays, toDateStr } from '@/lib/dates';
 
@@ -74,4 +74,9 @@ export function useDayData(today: string | null): DayData | undefined {
     },
     [today],
   );
+}
+
+/** The interrupted workout, if any. undefined while loading; { value: undefined } when there is none. */
+export function useActiveSession(): { value: ActiveSession | undefined } | undefined {
+  return useLiveQuery(async () => ({ value: await getRepos().active.get() }), []);
 }

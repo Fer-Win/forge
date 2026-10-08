@@ -66,6 +66,11 @@ export function createDexieRepos(db: ForgeDB): Repos {
       put: async (p) => { await db.dayPrefs.put(p); },
       between: (from, to) => db.dayPrefs.where('date').between(from, to, true, true).toArray(),
     },
+    active: {
+      get: () => db.activeSession.get('active'),
+      put: async (a) => { await db.activeSession.put(a); },
+      clear: () => db.activeSession.clear(),
+    },
     exportAll: async () => {
       const out: Record<string, unknown[]> = {};
       for (const t of TABLES) out[t] = await db.table(t).toArray();

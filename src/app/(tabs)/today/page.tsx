@@ -9,7 +9,7 @@ import { computeStreak, weekProgress } from '@/engine/streak';
 import { parseDateStr, startOfWeek } from '@/lib/dates';
 import { describeAssignment, exerciseDetail, sameAssignment } from '@/lib/labels';
 import { patchPrefs, setDayOverride, toggleCheck } from '@/lib/actions';
-import { useDayData, useExerciseMap, useRunProgram, useSettings, useToday } from '@/hooks/useData';
+import { useActiveSession, useDayData, useExerciseMap, useRunProgram, useSettings, useToday } from '@/hooks/useData';
 import { BottomSheet } from '@/components/ui/BottomSheet';
 import { Flame } from '@/components/ui/Flame';
 import { PillButton } from '@/components/ui/PillButton';
@@ -26,6 +26,7 @@ export default function TodayPage() {
   const data = useDayData(today);
   const exercises = useExerciseMap();
   const program = useRunProgram();
+  const active = useActiveSession();
   const [swapOpen, setSwapOpen] = useState(false);
 
   useEffect(() => {
@@ -84,7 +85,11 @@ export default function TodayPage() {
       : plan.assignment.type === 'run'
         ? '/run/'
         : '/workout/?w=w-mobility&d=' + today;
-  const barLabel = desc.kind === 'run' ? 'Start run' : isRest ? 'Start mobility flow' : 'Start workout';
+  const resuming =
+    active?.value?.date === today &&
+    barHref.startsWith('/workout/') &&
+    barHref.includes(`w=${active.value.workoutId}&`);
+  const barLabel = resuming ? 'Resume workout' : desc.kind === 'run' ? 'Start run' : isRest ? 'Start mobility flow' : 'Start workout';
   const showBar = status !== 'completed';
 
   const badge =

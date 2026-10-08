@@ -78,6 +78,8 @@ export interface LoggedSet {
   weightKg: number;
   loadLabel?: string;
   tempo?: string;
+  /** Set for timed holds and the finisher: seconds held / spent. */
+  durationSec?: number;
   doneAt: number;
 }
 
@@ -143,4 +145,13 @@ export interface DayPrefs {
   intensity: 'easy' | 'normal' | 'hard';
   short: boolean;
   energy?: 1 | 2 | 3 | 4 | 5;
+}
+
+/** The workout in progress, so a reload or crash resumes it. `state` is the engine's FlowState (JSON). */
+export interface ActiveSession {
+  id: 'active';
+  date: string;
+  workoutId: string;
+  updatedAt: number;
+  state: unknown;
 }

@@ -1,6 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie';
 import type {
-  Exercise, Workout, PlanDay, PlanOverride, ExerciseCheck, Session, RunLog, RunProgram, BodyweightEntry, Settings, DayPrefs,
+  Exercise, Workout, PlanDay, PlanOverride, ExerciseCheck, Session, RunLog, RunProgram, BodyweightEntry, Settings, DayPrefs, ActiveSession,
 } from './types';
 
 export class ForgeDB extends Dexie {
@@ -15,6 +15,7 @@ export class ForgeDB extends Dexie {
   bodyweight!: EntityTable<BodyweightEntry, 'date'>;
   settings!: EntityTable<Settings, 'id'>;
   dayPrefs!: EntityTable<DayPrefs, 'date'>;
+  activeSession!: EntityTable<ActiveSession, 'id'>;
 
   constructor(name = 'forge') {
     super(name);
@@ -31,6 +32,7 @@ export class ForgeDB extends Dexie {
       settings: 'id',
     });
     this.version(2).stores({ dayPrefs: 'date' });
+    this.version(3).stores({ activeSession: 'id' });
   }
 }
 
