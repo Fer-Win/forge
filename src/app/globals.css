@@ -3,11 +3,13 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body { background: var(--bg); color: var(--fg); overflow-x: hidden; }
+html, body { background: var(--bg); color: var(--fg); }
+/* clip, not hidden: hidden on both html and body turns body into its own scroll container, which makes touch scrolling stick on Android. */
+body { overflow-x: clip; }
+html { overscroll-behavior-y: none; } /* no pull-to-refresh reload in the middle of a workout */
 body {
   font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-tap-highlight-color: transparent;
-  overscroll-behavior-y: none;
   font-variant-numeric: tabular-nums;
 }
 .num { font-variant-numeric: tabular-nums; font-weight: 800; letter-spacing: -0.02em; }

@@ -1,5 +1,5 @@
 /* Forge service worker: offline shell. Bump VERSION to invalidate caches. */
-const VERSION = 'forge-v2';
+const VERSION = 'forge-v3';
 const SHELL = ['/', '/today/', '/plan/', '/run/', '/progress/', '/library/', '/settings/', '/onboarding/', '/workout/', '/run/active/', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png'];
 
 self.addEventListener('install', (event) => {
