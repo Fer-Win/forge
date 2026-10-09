@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { getRepos } from '@/data';
-import type { RunLog, ActiveSession, Exercise, PlanDay, RunProgram, Settings, Workout, CheckStatus } from '@/data/types';
+import type { RunLog, ActiveSession, BodyweightEntry, Exercise, PlanDay, RunProgram, Session, Settings, Workout, CheckStatus } from '@/data/types';
+import type { Units } from '@/engine/units';
 import type { DayData } from '@/engine/dayStatus';
 import { addDays, toDateStr } from '@/lib/dates';
 
@@ -83,4 +84,22 @@ export function useRuns(): RunLog[] | undefined {
 /** The interrupted workout, if any. undefined while loading; { value: undefined } when there is none. */
 export function useActiveSession(): { value: ActiveSession | undefined } | undefined {
   return useLiveQuery(async () => ({ value: await getRepos().active.get() }), []);
+}
+
+export function useAllSessions(): Session[] | undefined {
+  return useLiveQuery(() => getRepos().sessions.all(), []);
+}
+
+export function useBodyweight(): BodyweightEntry[] | undefined {
+  return useLiveQuery(() => getRepos().bodyweight.all(), []);
+}
+
+export function useAllExercises(): Exercise[] | undefined {
+  return useLiveQuery(() => getRepos().exercises.all(), []);
+}
+
+/** Display units; stored data is always kg and metres. */
+export function useUnits(): Units {
+  const s = useSettings();
+  return s?.value?.units ?? 'metric';
 }

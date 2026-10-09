@@ -4,12 +4,14 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { getRepos } from '@/data';
 import type { RunLog, RunType, Settings } from '@/data/types';
-import { addSample, emptyTrack, fmtDuration, fmtKm, fmtPace, paceOf, recentPace, type GeoSample, type Track } from '@/engine/geo';
+import { addSample, emptyTrack, fmtDuration, paceOf, recentPace, type GeoSample, type Track } from '@/engine/geo';
 import {
   actualMs, pauseRun, planElapsed, positionOf, restoreRun, resumeRun, skipSegment, startRun, stopRun, totalMs,
 } from '@/engine/runFlow';
 import { buildRun, programWeek, type RunGoal } from '@/engine/runPlan';
 import { formatClock } from '@/engine/timer';
+import { distanceValue, distText, distUnit, fmtDistance, paceLabel } from '@/engine/units';
+import { useUnits } from '@/hooks/useData';
 import { announce, useRun } from '@/hooks/useRun';
 import { patchSettings } from '@/lib/actions';
 import { toDateStr } from '@/lib/dates';
@@ -34,6 +36,7 @@ const KIND_COLOR: Record<string, string> = {
 };
 
 export function RunPlayer({ type }: { type: RunType }) {
+  const units = useUnits();
   const router = useRouter();
   const [data, setData] = useState<Loaded | null>(null);
   const [track, setTrack] = useState<Track>(emptyTrack());
@@ -179,18 +182,18 @@ export function RunPlayer({ type }: { type: RunType }) {
           <dl className="mt-5 grid grid-cols-2 gap-4">
             <div>
               <dt className="text-xs font-bold uppercase tracking-wide text-muted">Distance</dt>
-              <dd className="num text-3xl" data-testid="summary-distance">{distanceM > 0 ? `${fmtKm(distanceM)} km` : '—'}</dd>
+              <dd className="num text-3xl" data-testid="summary-distance">{distanceM > 0 ? fmtDistance(distanceM, units) : '—'}</dd>
             </div>
             <div>
               <dt className="text-xs font-bold uppercase tracking-wide text-muted">Avg pace</dt>
-              <dd className="num text-3xl" data-testid="summary-pace">{avg ? `${fmtPace(avg)} /km` : '—'}</dd>
+              <dd className="num text-3xl" data-testid="summary-pace">{avg ? `${paceLabel(avg, units)} /${distUnit(units)}` : '—'}</dd>
             </div>
           </dl>
         </section>
         {hasGps && <div className="mt-4"><RouteMap points={track.points} /></div>}
         <div className="mt-4 space-y-3">
           {!hasGps && (
-            <Stepper label="Distance (optional)" value={manualKm} step={0.1} min={0} max={100} format={(v) => `${v.toFixed(1)} km`} onChange={setManualKm} testId="summary-km-input" />
+            <Stepper label="Distance (optional)" value={manualKm} step={0.1} min={0} max={100} format={(v) => `${distanceValue(v * 1000, units).toFixed(1)} ${distUnit(units)}`} onChange={setManualKm} testId="summary-km-input" />
           )}
           <Stepper label="Effort (1–10)" value={effort} step={1} min={1} max={10} onChange={setEffort} testId="effort-value" />
           <label className="block">
@@ -257,11 +260,11 @@ export function RunPlayer({ type }: { type: RunType }) {
         </div>
         <div className="rounded-card border border-hair bg-card p-3">
           <dt className="text-xs font-bold uppercase tracking-wide text-muted">Distance</dt>
-          <dd className="num text-2xl" data-testid="distance">{gpsWanted ? fmtKm(track.distanceM) : '—'}</dd>
+          <dd className="num text-2xl" data-testid="distance">{gpsWanted ? distText(track.distanceM, units) : '—'}</dd>
         </div>
         <div className="rounded-card border border-hair bg-card p-3">
           <dt className="text-xs font-bold uppercase tracking-wide text-muted">Pace</dt>
-          <dd className="num text-2xl" data-testid="pace">{gpsWanted ? fmtPace(pace) : '—'}</dd>
+          <dd className="num text-2xl" data-testid="pace">{gpsWanted ? paceLabel(pace, units) : '—'}</dd>
         </div>
       </dl>
       {gpsText && <p className="mt-3 text-sm text-muted" role="status" data-testid="gps-status">{gpsText}</p>}

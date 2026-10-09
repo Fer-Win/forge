@@ -2,8 +2,11 @@
 import { useState } from 'react';
 import type { Exercise, Session } from '@/data/types';
 import { activeMs, mainLogs, type FlowState } from '@/engine/flow';
-import { prLabel, type PR } from '@/engine/pr';
+import type { PR } from '@/engine/pr';
 import { formatClock } from '@/engine/timer';
+import { fmtPRValue, type Units } from '@/engine/units';
+import { workoutCard } from '@/lib/shareCards';
+import { shareCard } from '@/services/shareImage';
 import { Confetti } from '@/components/ui/Confetti';
 import { PillButton } from '@/components/ui/PillButton';
 
@@ -14,33 +17,34 @@ export interface CompleteViewProps {
   session: Session;
   prs: PR[];
   exercises: Map<string, Exercise>;
+  units: Units;
 }
 
-export function CompleteView({ workoutName, date, flow, session, prs, exercises }: CompleteViewProps) {
+export function CompleteView({ workoutName, date, flow, session, prs, exercises, units }: CompleteViewProps) {
   const [note, setNote] = useState('');
   const duration = activeMs(flow, flow.endedAt ?? Date.now());
   const sets = mainLogs(flow.logs).length;
   const volume = session.totalVolume;
   const early = flow.endedEarly;
   const dateLabel = new Date(`${date}T12:00:00`).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
-  const volumeLabel = volume > 0 ? `${volume.toLocaleString()} kg` : '—';
+  const volumeText = units === 'imperial' ? `${Math.round(volume * 2.2046226).toLocaleString()} lb` : `${volume.toLocaleString()} kg`;
+  const volumeLabel = volume > 0 ? volumeText : '—';
   const name = (id: string) => exercises.get(id)?.name ?? id;
 
   const summary =
     `Forge · ${workoutName} · ${formatClock(duration)} · ${sets} sets` +
-    (volume > 0 ? ` · ${volume.toLocaleString()} kg total` : '') +
+    (volume > 0 ? ` · ${volumeText} total` : '') +
     (prs.length ? ` · ${prs.length} PR${prs.length > 1 ? 's' : ''}` : '');
 
   async function share() {
     try {
-      if (typeof navigator.share === 'function') {
-        await navigator.share({ title: 'Forge workout', text: summary });
-        return;
-      }
-      await navigator.clipboard.writeText(summary);
-      setNote('Copied to clipboard');
-    } catch (e) {
-      if (e instanceof DOMException && e.name === 'AbortError') return;
+      const card = workoutCard({
+        name: workoutName, dateLabel, duration: formatClock(duration), sets, volume: volumeLabel,
+        prLines: prs.map((pr) => `${name(pr.exerciseId)} · ${fmtPRValue(pr.kind, pr.value, units)}`),
+      });
+      const r = await shareCard(card, summary, `forge-workout-${date}.png`);
+      if (r === 'saved') setNote('Image saved to your downloads');
+    } catch {
       setNote('Sharing is not available here');
     }
   }
@@ -90,7 +94,7 @@ export function CompleteView({ workoutName, date, flow, session, prs, exercises 
                 <span className="rounded-full bg-accent px-2.5 py-1 text-xs font-extrabold text-white">PR</span>
                 <div className="min-w-0">
                   <p className="truncate font-semibold">{name(pr.exerciseId)}</p>
-                  <p className="text-sm text-muted">{prLabel(pr)} · was {pr.previous}</p>
+                  <p className="text-sm text-muted">{fmtPRValue(pr.kind, pr.value, units)} · was {fmtPRValue(pr.kind, pr.previous, units)}</p>
                 </div>
               </li>
             ))}

@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { RegisterSW } from '@/components/RegisterSW';
 import { Bootstrap } from '@/components/Bootstrap';
+import { Reminders } from '@/components/Reminders';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
 
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <RegisterSW />
         <Bootstrap />
+        <Reminders />
       </body>
     </html>
   );

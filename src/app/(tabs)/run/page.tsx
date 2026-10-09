@@ -3,11 +3,14 @@ import { useState } from 'react';
 import { getRepos } from '@/data';
 import type { RunLog, RunType } from '@/data/types';
 import { dayPlan } from '@/engine/dayStatus';
-import { fmtDuration, fmtKm, fmtPace, paceOf } from '@/engine/geo';
+import { fmtDuration, paceOf } from '@/engine/geo';
 import { buildRun, cyclePos, PROGRAM_WEEKS, programWeek, RUN_TYPE_LABEL, RUN_TYPES, typeForSlot } from '@/engine/runPlan';
 import { runATypeForWeek } from '@/engine/schedule';
+import { distText, distUnit, fmtDistance, paceLabel } from '@/engine/units';
 import { useDayData, useRunProgram, useRuns, useSettings, useToday } from '@/hooks/useData';
 import { patchSettings } from '@/lib/actions';
+import { runCard } from '@/lib/shareCards';
+import { shareCard } from '@/services/shareImage';
 import { parseDateStr, startOfWeek } from '@/lib/dates';
 import { BottomSheet } from '@/components/ui/BottomSheet';
 import { PillButton } from '@/components/ui/PillButton';
@@ -28,6 +31,7 @@ export default function RunPage() {
   const [picked, setPicked] = useState<RunType | null>(null);
   const [manualOpen, setManualOpen] = useState(false);
   const [selected, setSelected] = useState<RunLog | null>(null);
+  const [shareNote, setShareNote] = useState<string | null>(null);
 
   const st = settings?.value;
   if (!today || !data || !st || !runs || !program) {
@@ -49,6 +53,15 @@ export default function RunPage() {
   const type = picked ?? recommended;
   const spec = buildRun(type, week, goal);
   const gpsOn = st.gps !== false;
+
+  async function shareRun(r: RunLog) {
+    try {
+      const res = await shareCard(runCard(r, dateLabel(r.date), st!.units), `Forge · ${RUN_TYPE_LABEL[r.type]} run`, `forge-run-${r.date}.png`);
+      setShareNote(res === 'saved' ? 'Image saved to your downloads' : null);
+    } catch {
+      setShareNote('Sharing is not available here');
+    }
+  }
 
   async function saveManual(m: ManualRun) {
     const durationSec = m.durationMin * 60;
@@ -115,8 +128,8 @@ export default function RunPage() {
                   <span className="min-w-0">
                     <span className="block font-semibold">{RUN_TYPE_LABEL[r.type]} · {dateLabel(r.date)}</span>
                     <span className="block text-sm text-muted">
-                      {r.distanceM > 0 ? `${fmtKm(r.distanceM)} km · ` : ''}{fmtDuration(r.durationSec)}
-                      {r.avgPaceSecPerKm > 0 ? ` · ${fmtPace(r.avgPaceSecPerKm)} /km` : ''}
+                      {r.distanceM > 0 ? `${fmtDistance(r.distanceM, st.units)} · ` : ''}{fmtDuration(r.durationSec)}
+                      {r.avgPaceSecPerKm > 0 ? ` · ${paceLabel(r.avgPaceSecPerKm, st.units)} /${distUnit(st.units)}` : ''}
                     </span>
                   </span>
                   <span className="num shrink-0 text-lg text-muted" aria-label={`Effort ${r.effort} of 10`}>{r.effort}/10</span>
@@ -140,11 +153,13 @@ export default function RunPage() {
           <div className="pb-2">
             <dl className="grid grid-cols-3 gap-3">
               <div><dt className="text-xs font-bold uppercase text-muted">Time</dt><dd className="num text-2xl">{fmtDuration(selected.durationSec)}</dd></div>
-              <div><dt className="text-xs font-bold uppercase text-muted">Distance</dt><dd className="num text-2xl">{selected.distanceM > 0 ? fmtKm(selected.distanceM) : '—'}</dd></div>
-              <div><dt className="text-xs font-bold uppercase text-muted">Pace</dt><dd className="num text-2xl">{fmtPace(selected.avgPaceSecPerKm || null)}</dd></div>
+              <div><dt className="text-xs font-bold uppercase text-muted">Distance</dt><dd className="num text-2xl">{selected.distanceM > 0 ? distText(selected.distanceM, st.units) : '—'}</dd></div>
+              <div><dt className="text-xs font-bold uppercase text-muted">Pace</dt><dd className="num text-2xl">{paceLabel(selected.avgPaceSecPerKm || null, st.units)}</dd></div>
             </dl>
             {selected.notes && <p className="mt-4 text-muted">{selected.notes}</p>}
+            {shareNote && <p className="mt-3 text-sm text-muted" role="status">{shareNote}</p>}
             <div className="mt-5 grid gap-3">
+              <PillButton variant="secondary" onClick={() => void shareRun(selected)}>Share image</PillButton>
               <PillButton variant="secondary" onClick={() => setSelected(null)}>Close</PillButton>
               <PillButton variant="secondary" onClick={() => { const id = selected.id; setSelected(null); void getRepos().runs.remove(id); }}>Delete run</PillButton>
             </div>

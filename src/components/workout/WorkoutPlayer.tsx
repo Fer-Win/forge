@@ -33,6 +33,7 @@ interface Saved { session: Session; prs: PR[] }
 export function WorkoutPlayer({ workoutId, date }: { workoutId: string; date: string }) {
   const router = useRouter();
   const settings = useSettings();
+  const units = settings?.value?.units ?? 'metric';
   const feedback = useMemo(
     () => ({ sound: settings?.value?.sound ?? true, haptics: settings?.value?.haptics ?? true }),
     [settings?.value?.sound, settings?.value?.haptics],
@@ -141,7 +142,7 @@ export function WorkoutPlayer({ workoutId, date }: { workoutId: string; date: st
     return (
       <CompleteView
         workoutName={loaded.workout.name} date={date} flow={flow}
-        session={saved.session} prs={saved.prs} exercises={loaded.exercises}
+        session={saved.session} prs={saved.prs} exercises={loaded.exercises} units={units}
       />
     );
   }
@@ -150,7 +151,7 @@ export function WorkoutPlayer({ workoutId, date }: { workoutId: string; date: st
     return (
       <>
         <ActiveView
-          flow={flow} now={now} exercises={loaded.exercises} history={loaded.history} act={act}
+          flow={flow} now={now} exercises={loaded.exercises} history={loaded.history} sessions={loaded.sessions} units={units} act={act}
           onPause={() => act((s, t) => pause(s, t))}
           onEnd={() => setEndOpen(true)}
         />

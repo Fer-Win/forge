@@ -140,6 +140,11 @@ export interface Settings {
   startDate: string;
   /** Track runs with GPS (default on). */
   gps?: boolean;
+  /** Training reminders on (needs notification permission). */
+  reminders?: boolean;
+  /** Date (YYYY-MM-DD) each nudge was last sent, so it fires once a day. */
+  lastDailyNudge?: string;
+  lastEveningNudge?: string;
 }
 
 export interface DayPrefs {

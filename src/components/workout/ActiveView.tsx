@@ -1,12 +1,14 @@
 'use client';
 import { useState, type ReactNode } from 'react';
-import type { Exercise, LoggedSet } from '@/data/types';
+import type { Exercise, LoggedSet, Session } from '@/data/types';
 import {
   addRound, adjustRest, intervalPhase, logSet, progressOf, skipStep, startFinisher, startHold, undoLast, upNext, activeMs,
   type FinisherStep, type FlowState, type RestStep, type WorkStep,
 } from '@/engine/flow';
+import { overloadSuggestion } from '@/engine/overload';
 import { prefill } from '@/engine/prefill';
 import { elapsedOf, formatClock, remainingOf } from '@/engine/timer';
+import { fmtWeight, type Units } from '@/engine/units';
 import { loadKg } from '@/engine/warmup';
 import { loadLabel } from '@/lib/labels';
 import { BottomSheet } from '@/components/ui/BottomSheet';
@@ -21,6 +23,8 @@ export interface ActiveViewProps {
   now: number;
   exercises: Map<string, Exercise>;
   history: Map<string, LoggedSet[]>;
+  sessions: Session[];
+  units: Units;
   act: Act;
   onPause: () => void;
   onEnd: () => void;
@@ -160,6 +164,9 @@ function RepsView({ step, p, onInfo }: { step: WorkStep; p: ActiveViewProps; onI
   const [reps, setReps] = useState(pre.reps);
   const [kg, setKg] = useState(pre.weightKg);
   const target = step.repMin && step.repMax ? `${step.repMin}–${step.repMax} reps` : 'reps';
+  const tip = main && step.setNo === 1 && ex && step.repMax
+    ? overloadSuggestion({ exercise: ex, repMax: step.repMax, sets: step.sets, sessions: p.sessions })
+    : null;
 
   return (
     <>
@@ -169,11 +176,16 @@ function RepsView({ step, p, onInfo }: { step: WorkStep; p: ActiveViewProps; onI
         {ex && ex.load !== 'BW' ? ` · ${loadLabel(ex.load)}` : ''}
         {step.tempo ? ` · tempo ${step.tempo}` : ''}
       </p>
+      {tip && (
+        <p className="mt-3 rounded-2xl border border-accent/40 bg-accent/10 px-3 py-2 text-sm" data-testid="overload-chip">
+          <span className="font-bold text-accent">Ready to progress: {tip.title}.</span> {tip.detail}
+        </p>
+      )}
       <Cues ex={ex} />
       {main && (
         <div className="mt-5 grid grid-cols-1 gap-3">
           <Stepper label="Reps" value={reps} step={1} min={0} max={100} onChange={setReps} testId="reps-value" />
-          <Stepper label="Weight" value={kg} step={2.5} min={0} max={60} onChange={setKg} format={(v) => (v === 0 ? 'BW' : `${v} kg`)} testId="weight-value" />
+          <Stepper label="Weight" value={kg} step={2.5} min={0} max={60} onChange={setKg} format={(v) => fmtWeight(v, p.units)} testId="weight-value" />
         </div>
       )}
       <ActionBar>

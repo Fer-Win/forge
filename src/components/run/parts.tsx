@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import type { RunSegment, RunType } from '@/data/types';
 import { routePath, type GeoSample } from '@/engine/geo';
+import { distanceValue, distUnit } from '@/engine/units';
+import { useUnits } from '@/hooks/useData';
 import { RUN_TYPES, RUN_TYPE_LABEL } from '@/engine/runPlan';
 import { BottomSheet } from '@/components/ui/BottomSheet';
 import { PillButton } from '@/components/ui/PillButton';
@@ -59,6 +61,7 @@ export interface ManualRun {
 export function ManualRunSheet({
   open, onClose, defaultDate, onSave,
 }: { open: boolean; onClose: () => void; defaultDate: string; onSave: (r: ManualRun) => void }) {
+  const units = useUnits();
   const [type, setType] = useState<RunType>('easy');
   const [date, setDate] = useState(defaultDate);
   const [durationMin, setDuration] = useState(30);
@@ -81,7 +84,7 @@ export function ManualRunSheet({
           />
         </label>
         <Stepper label="Duration" value={durationMin} step={1} min={1} max={400} format={(v) => `${v} min`} onChange={setDuration} testId="manual-duration" />
-        <Stepper label="Distance" value={distanceKm} step={0.1} min={0} max={100} format={(v) => `${v.toFixed(1)} km`} onChange={setDistance} testId="manual-distance" />
+        <Stepper label="Distance" value={distanceKm} step={0.1} min={0} max={100} format={(v) => `${distanceValue(v * 1000, units).toFixed(1)} ${distUnit(units)}`} onChange={setDistance} testId="manual-distance" />
         <Stepper label="Effort (1–10)" value={effort} step={1} min={1} max={10} onChange={setEffort} testId="manual-effort" />
         <label className="block">
           <span className="text-sm font-medium text-muted">Notes</span>
