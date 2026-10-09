@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
-    "shots": "playwright test"
+    "shots": "playwright test",
+    "lighthouse": "npx -y lighthouse@12 http://localhost:3100/today/ --form-factor=mobile --screenEmulation.mobile --only-categories=performance,accessibility,best-practices,seo --output=html --output-path=./lighthouse.html --chrome-flags=\"--headless=new\""
   },
   "dependencies": {
     "dexie": "^4.4.6",

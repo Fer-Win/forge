@@ -4,6 +4,7 @@ import { getRepos } from '@/data';
 import type { Category, Exercise, Workout } from '@/data/types';
 import { useAllExercises, usePlanWeek, useWorkoutMap } from '@/hooks/useData';
 import { BottomSheet } from '@/components/ui/BottomSheet';
+import { DemoLink } from '@/components/ui/DemoLink';
 import { PillButton } from '@/components/ui/PillButton';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { Segmented } from '@/components/ui/Segmented';
@@ -159,6 +160,7 @@ export default function LibraryPage() {
             )}
             {viewEx.easier && <p className="text-sm"><span className="font-bold">Easier: </span>{viewEx.easier}</p>}
             {viewEx.harder && <p className="text-sm"><span className="font-bold">Harder: </span>{viewEx.harder}</p>}
+            <DemoLink name={viewEx.name} />
             {blocked && <p role="alert" className="rounded-2xl bg-partial/15 p-3 text-sm text-partial">{blocked}</p>}
             {viewEx.isCustom ? (
               confirm ? (

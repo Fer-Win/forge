@@ -44,6 +44,7 @@ test('a finished workout can be shared as a 1080 x 1920 image', async ({ page })
   await page.getByRole('button', { name: 'End workout' }).click();
   await page.getByRole('dialog', { name: 'End workout?' }).getByRole('button', { name: 'End and save' }).click();
   await expect(page.getByRole('heading', { name: 'Session saved', level: 1 })).toBeVisible();
+  await expect(page.getByTestId('exercise-summary')).toContainText('Dumbbell floor press');
   const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Share' }).click()]);
   expect(download.suggestedFilename()).toBe('forge-workout-2026-10-05.png');
   const path = test.info().outputPath('workout.png');

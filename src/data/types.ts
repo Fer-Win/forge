@@ -142,6 +142,9 @@ export interface Settings {
   gps?: boolean;
   /** Training reminders on (needs notification permission). */
   reminders?: boolean;
+  /** Remembered choices for the workout ready screen (default on). */
+  warmup?: boolean;
+  cooldown?: boolean;
   /** Date (YYYY-MM-DD) each nudge was last sent, so it fires once a day. */
   lastDailyNudge?: string;
   lastEveningNudge?: string;

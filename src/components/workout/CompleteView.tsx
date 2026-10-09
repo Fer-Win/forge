@@ -4,7 +4,7 @@ import type { Exercise, Session } from '@/data/types';
 import { activeMs, mainLogs, type FlowState } from '@/engine/flow';
 import type { PR } from '@/engine/pr';
 import { formatClock } from '@/engine/timer';
-import { fmtPRValue, type Units } from '@/engine/units';
+import { fmtPRValue, fmtWeight, type Units } from '@/engine/units';
 import { workoutCard } from '@/lib/shareCards';
 import { shareCard } from '@/services/shareImage';
 import { Confetti } from '@/components/ui/Confetti';
@@ -30,6 +30,14 @@ export function CompleteView({ workoutName, date, flow, session, prs, exercises,
   const volumeText = units === 'imperial' ? `${Math.round(volume * 2.2046226).toLocaleString()} lb` : `${volume.toLocaleString()} kg`;
   const volumeLabel = volume > 0 ? volumeText : '—';
   const name = (id: string) => exercises.get(id)?.name ?? id;
+  const groups = new Map<string, Session['sets']>();
+  for (const l of mainLogs(flow.logs)) groups.set(l.exerciseId, [...(groups.get(l.exerciseId) ?? []), l]);
+  const bestOf = (sets: Session['sets']): string => {
+    const hold = sets.filter((l) => l.durationSec);
+    if (hold.length === sets.length) return `${Math.max(...hold.map((l) => l.durationSec ?? 0))}s hold`;
+    const top = [...sets].sort((a, b) => b.weightKg - a.weightKg || b.reps - a.reps)[0]!;
+    return top.weightKg > 0 ? `${fmtWeight(top.weightKg, units)} × ${top.reps}` : `${Math.max(...sets.map((l) => l.reps))} reps`;
+  };
 
   const summary =
     `Forge · ${workoutName} · ${formatClock(duration)} · ${sets} sets` +
@@ -69,7 +77,7 @@ export function CompleteView({ workoutName, date, flow, session, prs, exercises,
         <p className="mt-1 text-lg font-bold">{workoutName}</p>
         <p className="mt-6 text-xs font-bold uppercase tracking-wide text-muted">Duration</p>
         <p className="num text-7xl" data-testid="duration">{formatClock(duration)}</p>
-        <dl className="mt-6 grid grid-cols-3 gap-3">
+        <dl className="mt-6 grid grid-cols-[1.7fr_1fr_1fr] gap-3">
           <div>
             <dt className="text-xs font-bold uppercase tracking-wide text-muted">Volume</dt>
             <dd className="num text-2xl" data-testid="volume">{volumeLabel}</dd>
@@ -84,6 +92,20 @@ export function CompleteView({ workoutName, date, flow, session, prs, exercises,
           </div>
         </dl>
       </section>
+
+      {groups.size > 0 && (
+        <section className="mt-6" aria-labelledby="sets-h">
+          <h2 id="sets-h" className="text-lg font-extrabold">What you did</h2>
+          <ul className="mt-3 space-y-2" data-testid="exercise-summary">
+            {[...groups].map(([id, sets]) => (
+              <li key={id} className="flex min-h-[52px] items-center justify-between gap-3 rounded-card border border-hair bg-card px-4 py-2">
+                <span className="min-w-0 truncate font-semibold">{name(id)}</span>
+                <span className="shrink-0 text-sm text-muted"><span className="num text-fg">{sets.length}</span> {sets.length === 1 ? 'set' : 'sets'} · best <span className="font-bold text-fg">{bestOf(sets)}</span></span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {prs.length > 0 && (
         <section className="mt-6" aria-labelledby="pr-h">

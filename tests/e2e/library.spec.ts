@@ -34,6 +34,9 @@ test('browse, search and filter the seeded exercises', async ({ page }) => {
   const dialog = page.getByRole('dialog', { name: 'Goblet squat' });
   await expect(dialog.getByRole('button', { name: 'Duplicate as custom' })).toBeVisible();
   await expect(dialog.getByRole('button', { name: 'Delete' })).toHaveCount(0);
+  const demo = dialog.getByRole('link', { name: /Watch how/ });
+  await expect(demo).toHaveAttribute('href', /youtube\.com\/results\?search_query=Goblet%20squat/);
+  await expect(demo).toHaveAttribute('target', '_blank');
   await page.screenshot({ path: 'shots/library-detail.png' });
 
   await page.keyboard.press('Escape');

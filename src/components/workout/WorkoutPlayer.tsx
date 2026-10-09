@@ -12,6 +12,7 @@ import { lastSetsByExercise } from '@/engine/prefill';
 import { buildSession } from '@/engine/session';
 import { useFlow } from '@/hooks/useFlow';
 import { useSettings } from '@/hooks/useData';
+import { patchSettings } from '@/lib/actions';
 import { unlockAudio } from '@/services/audio';
 import { useWakeLock } from '@/services/wakeLock';
 import { BottomSheet } from '@/components/ui/BottomSheet';
@@ -44,6 +45,11 @@ export function WorkoutPlayer({ workoutId, date }: { workoutId: string; date: st
   const [stale, setStale] = useState<{ active: ActiveSession; name: string } | null>(null);
   const [warmup, setWarmup] = useState(true);
   const [cooldown, setCooldown] = useState(true);
+  // remembered between workouts
+  const savedWarmup = settings?.value?.warmup;
+  const savedCooldown = settings?.value?.cooldown;
+  useEffect(() => { setWarmup(savedWarmup !== false); }, [savedWarmup]);
+  useEffect(() => { setCooldown(savedCooldown !== false); }, [savedCooldown]);
   const [endOpen, setEndOpen] = useState(false);
   const [saved, setSaved] = useState<Saved | null>(null);
   const savedFor = useRef<number | null>(null);
@@ -182,7 +188,7 @@ export function WorkoutPlayer({ workoutId, date }: { workoutId: string; date: st
       <ReadyView
         workout={loaded.workout} built={built} exercises={loaded.exercises}
         intensity={prefs.intensity} short={prefs.short}
-        warmup={warmup} cooldown={cooldown} onWarmup={setWarmup} onCooldown={setCooldown}
+        warmup={warmup} cooldown={cooldown} onWarmup={(v) => { setWarmup(v); void patchSettings({ warmup: v }); }} onCooldown={(v) => { setCooldown(v); void patchSettings({ cooldown: v }); }}
         onStart={() => {
           unlockAudio();
           const steps = buildSteps(built, { kind: loaded.workout.kind, warmup, cooldown, exercises: loaded.exercises });

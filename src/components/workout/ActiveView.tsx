@@ -13,6 +13,7 @@ import { loadKg } from '@/engine/warmup';
 import { loadLabel } from '@/lib/labels';
 import { BottomSheet } from '@/components/ui/BottomSheet';
 import { CountdownRing } from '@/components/ui/CountdownRing';
+import { DemoLink } from '@/components/ui/DemoLink';
 import { PillButton } from '@/components/ui/PillButton';
 import { Stepper } from '@/components/ui/Stepper';
 
@@ -95,6 +96,7 @@ export function ActiveView(p: ActiveViewProps) {
               <h3 className="text-sm font-bold uppercase tracking-wide text-accent">Harder</h3>
               <p className="mt-1">{info.harder}</p>
             </section>
+            <DemoLink name={info.name} />
             <PillButton variant="secondary" className="w-full" onClick={() => setInfo(null)}>Got it</PillButton>
           </div>
         )}
